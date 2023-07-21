@@ -1,65 +1,99 @@
 import yargs from 'yargs';
-import contacts from './contacts.js';
+import { listContacts, getContactById, removeContact, addContact } from './contacts.js';
 
-const { argv } = yargs(process.argv.slice(2))
-  .command('list', 'List all contacts')
-  .command('get', 'Get a contact by ID', {
-    id: {
-      demandOption: true,
+// async function testContactsFunctions() {
+//   const allContacts = await listContacts();
+//   console.table(allContacts);
+
+//   const contactById = await getContactById('05olLMgyVQdWRwgKfg5J6');
+//   console.log('Contact by ID:', contactById);
+
+//   const newContact = await addContact('Mango', 'mango@gmail.com', '322-22-22');
+//   console.log('New contact added:', newContact);
+
+//   const removedContact = await removeContact('qdggE76Jtbfd9eWJHrssH');
+//   console.log('Removed contact:', removedContact);
+// }
+
+// testContactsFunctions();
+
+const { argv } = yargs(process.argv.slice(2)).command(
+  'list',
+  'List all contacts',
+  (yargs) => {},
+  async () => {
+    await invokeAction({ action: 'list' });
+  }
+).command(
+  'get <id>',
+  'Get a contact by ID',
+  (yargs) => {
+    yargs.positional('id', {
       describe: 'Contact ID',
       type: 'string',
-    },
-  })
-  .command('add', 'Add a new contact', {
-    name: {
-      demandOption: true,
+    });
+  },
+  async (argv) => {
+    await invokeAction({ action: 'get', id: argv.id });
+  }
+).command(
+  'add <name> <email> <phone>',
+  'Add a new contact',
+  (yargs) => {
+    yargs.positional('name', {
       describe: 'Contact name',
       type: 'string',
-    },
-    email: {
-      demandOption: true,
+    });
+    yargs.positional('email', {
       describe: 'Contact email',
       type: 'string',
-    },
-    phone: {
-      demandOption: true,
+    });
+    yargs.positional('phone', {
       describe: 'Contact phone',
       type: 'string',
-    },
-  })
-  .command('remove', 'Remove a contact by ID', {
-    id: {
-      demandOption: true,
+    });
+  },
+  async (argv) => {
+    await invokeAction({
+      action: 'add',
+      name: argv.name,
+      email: argv.email,
+      phone: argv.phone,
+    });
+  }
+).command(
+  'remove <id>',
+  'Remove a contact by ID',
+  (yargs) => {
+    yargs.positional('id', {
       describe: 'Contact ID',
       type: 'string',
-    },
-  })
-  .demandCommand(1)
-  .help(false)
-  .version(false)
-  .alias('h', 'help')
-  .alias('v', 'version')
-  .strict();
+    });
+  },
+  async (argv) => {
+    await invokeAction({ action: 'remove', id: argv.id });
+  }
+).help().alias('h', 'help').alias('v', 'version').strict();
 
-async function invokeAction({ _: [action], ...args }) {
+async function invokeAction({ action, id, name, email, phone }) {
   switch (action) {
     case 'list':
-      const allContacts = await contacts.listContacts();
+      const allContacts = await listContacts();
       console.table(allContacts);
       break;
 
     case 'get':
-      const contactById = await contacts.getContactById(args.id);
+      const contactById = await getContactById(id);
       console.log('Contact by ID:', contactById);
       break;
 
     case 'add':
-      const newContact = await contacts.addContact(args.name, args.email, args.phone);
+      const newContact = await addContact(name, email, phone);
       console.log('New contact added:', newContact);
       break;
 
     case 'remove':
-      const removedContact = await contacts.removeContact(args.id);
+      const removedContact = await removeContact(id);
       console.log('Removed contact:', removedContact);
       break;
 
@@ -67,5 +101,3 @@ async function invokeAction({ _: [action], ...args }) {
       console.error('\x1B[31m Unknown action type!');
   }
 }
-
-invokeAction(argv);
