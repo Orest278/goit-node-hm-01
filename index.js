@@ -1,22 +1,6 @@
 import yargs from 'yargs';
 import { listContacts, getContactById, removeContact, addContact } from './contacts.js';
 
-// async function testContactsFunctions() {
-//   const allContacts = await listContacts();
-//   console.table(allContacts);
-
-//   const contactById = await getContactById('05olLMgyVQdWRwgKfg5J6');
-//   console.log('Contact by ID:', contactById);
-
-//   const newContact = await addContact('Mango', 'mango@gmail.com', '322-22-22');
-//   console.log('New contact added:', newContact);
-
-//   const removedContact = await removeContact('qdggE76Jtbfd9eWJHrssH');
-//   console.log('Removed contact:', removedContact);
-// }
-
-// testContactsFunctions();
-
 const { argv } = yargs(process.argv.slice(2)).command(
   'list',
   'List all contacts',
